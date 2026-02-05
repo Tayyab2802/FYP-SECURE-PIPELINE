@@ -1,0 +1,16 @@
+# Python virtual environments
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
