@@ -1,0 +1,8 @@
+# Require review for pipeline changes
+.github/workflows/ @Tayyab2802
+
+# Require review for infrastructure-as-code changes
+infra/ @Tayyab2802
+
+# Require review for application changes
+src/ @Tayyab2802
