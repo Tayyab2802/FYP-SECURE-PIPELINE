@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!--
+  SECTION 1: Document type
+  Declares this as an HTML5 document
+-->
+<html>
+
+  <head>
+    <!--
+      SECTION 2: Page title
+      Appears in the browser tab
+    -->
+    <title>FYP Simple Frontend</title>
+  </head>
+
+  <body>
+    <!--
+      SECTION 3: Page heading
+      Confirms the frontend page has loaded
+    -->
+    <h1>Frontend Test Page</h1>
+
+    <!--
+      SECTION 4: Explanation text
+      Describes what the buttons do
+    -->
+    <p>
+      The buttons below send HTTP GET requests to the backend API.
+      Each response opens in a new browser tab.
+    </p>
+
+    <!--
+      SECTION 5: Health check form
+      Sends a GET request to /health
+    -->
+    <form action="http://127.0.0.1:8000/health" method="get" target="_blank">
+      <button type="submit">Check Backend Health</button>
+    </form>
+
+    <br />
+
+    <!--
+      SECTION 6: API message form
+      Sends a GET request to /api/message
+    -->
+    <form action="http://127.0.0.1:8000/api/message" method="get" target="_blank">
+      <button type="submit">Call Backend API</button>
+    </form>
+
+  </body>
+</html>
