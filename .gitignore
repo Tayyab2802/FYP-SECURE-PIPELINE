@@ -1,16 +1,56 @@
-# Python virtual environments
-.venv/
-__pycache__/
-*.pyc
-.env
+#################################
+# TERRAFORM
+#################################
 
-# Terraform files
+# Terraform working directory
 .terraform/
+
+# Terraform state files
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
+
+# Terraform variable files (may contain sensitive values)
+*.tfvars
+*.tfvars.json
+
+# Crash logs
 crash.log
 
-# Editor / OS files
+#################################
+# ENV / SECRETS
+#################################
+
+.env
+.env.*
+
+# Private keys / certs
+*.pem
+*.key
+
+#################################
+# DOCKER
+#################################
+
+# Local Docker artifacts
+*.tar
+*.log
+
+#################################
+# PYTHON (if your backend is Python)
+#################################
+
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+
+#################################
+# IDE / OS
+#################################
+
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db
+
