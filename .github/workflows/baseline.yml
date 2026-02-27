@@ -1,0 +1,42 @@
+name: Baseline CI (No Security Scans)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["baseline"]
+
+jobs:
+  terraform:
+    name: Terraform Format & Validate (Baseline)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive
+
+      - name: Initialise Terraform (no backend)
+        run: terraform init -backend=false
+
+      - name: Validate Terraform configuration
+        run: terraform validate
+
+  docker:
+    name: Docker Build (Baseline)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build backend Docker image
+        run: docker build -t fyp-app:baseline -f src/backend/Dockerfile src/backend
