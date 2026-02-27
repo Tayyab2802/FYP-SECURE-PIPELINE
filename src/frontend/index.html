@@ -30,22 +30,22 @@
     </p>
 
     <!--
-      SECTION 5: Health check form
-      Sends a GET request to /health
+      SECTION 5: Health check link
+      Calls /health via CloudFront (CloudFront routes this to the ALB)
     -->
-    <form action="http://127.0.0.1:8000/health" method="get" target="_blank">
-      <button type="submit">Check Backend Health</button>
-    </form>
+    <a href="/health" target="_blank">
+      <button type="button">Check Backend Health</button>
+    </a>
 
-    <br />
+    <br /><br />
 
     <!--
-      SECTION 6: API message form
-      Sends a GET request to /api/message
+      SECTION 6: API message link
+      Calls /api/message via CloudFront (CloudFront routes /api/* to the ALB)
     -->
-    <form action="http://127.0.0.1:8000/api/message" method="get" target="_blank">
-      <button type="submit">Call Backend API</button>
-    </form>
+    <a href="/api/message" target="_blank">
+      <button type="button">Call Backend API</button>
+    </a>
 
   </body>
 </html>
