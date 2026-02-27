@@ -37,6 +37,12 @@ jobs:
         with:
           working_directory: infra
           soft_fail: true
+      
+      - name: Run Checkov (IaC policy scan)
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra
+          soft_fail: true
 
 
   docker:
