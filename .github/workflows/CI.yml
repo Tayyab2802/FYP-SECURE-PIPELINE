@@ -32,6 +32,11 @@ jobs:
       - name: Validate Terraform configuration
         run: terraform validate
 
+      - name: Run tfsec (IaC security scan)
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: infra
+
 
   docker:
     name: Docker Image Build (Backend)
