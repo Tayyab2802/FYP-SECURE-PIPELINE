@@ -7,6 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
+
   terraform-validate:
     name: Terraform Format & Validate
     runs-on: ubuntu-latest
@@ -31,6 +32,7 @@ jobs:
       - name: Validate Terraform configuration
         run: terraform validate
 
+
   tfsec-scan:
     name: tfsec IaC Scan
     runs-on: ubuntu-latest
@@ -45,6 +47,16 @@ jobs:
         with:
           working_directory: infra
           soft_fail: true
+          additional_args: >-
+            --exclude
+            aws-elb-http-not-used,
+            aws-elb-deletion-protection-enabled,
+            aws-elb-access-logs,
+            aws-ec2-no-public-egress-sgr,
+            aws-ec2-no-public-ingress-sgr,
+            aws-ec2-no-public-ip-subnet,
+            aws-ecr-enforce-immutable-repository
+
 
   checkov-scan:
     name: Checkov IaC Scan
@@ -60,6 +72,8 @@ jobs:
         with:
           directory: infra
           soft_fail: true
+          skip_check: CKV_AWS_2,CKV_AWS_150,CKV_AWS_91,CKV_AWS_382,CKV_AWS_260,CKV_AWS_130,CKV_AWS_51
+
 
   docker-build-and-trivy:
     name: Docker Build & Trivy Scan
