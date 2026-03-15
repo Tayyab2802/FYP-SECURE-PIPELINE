@@ -79,15 +79,12 @@ resource "aws_route_table_association" "public_2_assoc" {
 
 # =========================
 # Security Group: ALB
-# - Allows inbound HTTP from the internet
-# - ALB will forward traffic to ECS on port 8000
 # =========================
 resource "aws_security_group" "alb_sg" {
   name        = "${var.project_name}-alb-sg"
   description = "Security group for the Application Load Balancer"
   vpc_id      = aws_vpc.main.id
 
-  # Inbound: allow HTTP from anywhere (internet)
   ingress {
     description = "Allow HTTP from the internet"
     from_port   = 80
@@ -96,7 +93,6 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Outbound: allow all (ALB needs to reach targets + health checks)
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
@@ -112,15 +108,12 @@ resource "aws_security_group" "alb_sg" {
 
 # =========================
 # Security Group: ECS Tasks
-# - Allows inbound ONLY from the ALB SG on port 8000
-# - Prevents direct internet access to the app port
 # =========================
 resource "aws_security_group" "ecs_sg" {
   name        = "${var.project_name}-ecs-sg"
   description = "Security group for ECS tasks (allow traffic only from ALB)"
   vpc_id      = aws_vpc.main.id
 
-  # Inbound: allow app traffic ONLY from the ALB security group
   ingress {
     description     = "Allow app traffic from ALB only"
     from_port       = 8000
@@ -129,7 +122,6 @@ resource "aws_security_group" "ecs_sg" {
     security_groups = [aws_security_group.alb_sg.id]
   }
 
-  # Outbound: allow all (ECR pulls, CloudWatch logs, external calls if needed)
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
@@ -143,12 +135,12 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-
 # ============================
-# ALB Application load balancer
-# ==============================
+# ALB Application Load Balancer
+# ============================
 resource "aws_lb" "app_alb" {
   name               = "${var.project_name}-alb"
+  internal           = false
   load_balancer_type = "application"
 
   subnets = [
@@ -159,24 +151,23 @@ resource "aws_lb" "app_alb" {
   security_groups = [aws_security_group.alb_sg.id]
 
   enable_deletion_protection = false
+  drop_invalid_header_fields = true
 
   tags = {
     Name = "${var.project_name}-alb"
   }
 }
 
-
-
 # ==============================================
-# ALB (Application load balancer) target group
+# ALB Target Group
 # ==============================================
-
 resource "aws_lb_target_group" "app_tg" {
-  name        = "${var.project_name}-tg"
-  port        = 8000
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
-  target_type = "ip"
+  name             = "${var.project_name}-tg"
+  port             = 8000
+  protocol         = "HTTP"
+  protocol_version = "HTTP1"
+  vpc_id           = aws_vpc.main.id
+  target_type      = "ip"
 
   health_check {
     path                = "/health"
@@ -193,9 +184,8 @@ resource "aws_lb_target_group" "app_tg" {
 }
 
 # ==============================================
-# ALB (Application load balancer) LISTENER
+# ALB Listener
 # ==============================================
-
 resource "aws_lb_listener" "app_listener" {
   load_balancer_arn = aws_lb.app_alb.arn
   port              = 80
@@ -220,7 +210,7 @@ resource "aws_ecr_repository" "app_repo" {
   }
 
   encryption_configuration {
-    encryption_type = "AES256"
+    encryption_type = "KMS"
   }
 
   tags = {
@@ -229,31 +219,35 @@ resource "aws_ecr_repository" "app_repo" {
 }
 
 ############################################
-# ECS Fargate configurations  (after your VPC/Subnets/SGs)
-# Order: ECS Cluster → CloudWatch Log Group → IAM Task Execution Role
+# ECS Fargate configurations
 ############################################
 
-#==================================================
-# ECS Cluster (Fargate runs tasks inside a cluster)
-#==================================================
-
+# ==================================================
+# ECS Cluster
+# ==================================================
 resource "aws_ecs_cluster" "fyp_cluster" {
   name = "${var.project_name}-cluster"
+
+  tags = {
+    Name = "${var.project_name}-cluster"
+  }
 }
 
-#=============================================================
-# CloudWatch Log Group (where ECS container logs will be sent)
-#=============================================================
-
+# =============================================================
+# CloudWatch Log Group
+# =============================================================
 resource "aws_cloudwatch_log_group" "fyp_log" {
   name              = "/ecs/${var.project_name}-log"
   retention_in_days = 7
+
+  tags = {
+    Name = "${var.project_name}-log-group"
+  }
 }
 
-#=======================================================
+# =======================================================
 # Trust policy doc (who can assume the role) — ECS tasks
-#=======================================================
-
+# =======================================================
 data "aws_iam_policy_document" "ecs_task_execution_assume_role" {
   statement {
     effect  = "Allow"
@@ -266,30 +260,29 @@ data "aws_iam_policy_document" "ecs_task_execution_assume_role" {
   }
 }
 
-
-#=============================================
-#IAM Role (the identity ECS assumes at runtime)
-#==============================================
-
+# =============================================
+# IAM Role
+# =============================================
 resource "aws_iam_role" "ecs_task_execution_role" {
   name               = "${var.project_name}-ecs-task-exec-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_assume_role.json
+
+  tags = {
+    Name = "${var.project_name}-ecs-task-exec-role"
+  }
 }
 
-#==============================================================
-# Attach AWS-managed permissions (ECR pull + CloudWatch logs)
-#============================================================
-
+# ==============================================================
+# Attach AWS-managed permissions
+# ==============================================================
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_attach" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-
-#==============================================
-# ECS TASK DEFINITION (WHAT TO DO WHEN RUNNING)
-#==============================================
-
+# ==============================================
+# ECS TASK DEFINITION
+# ==============================================
 resource "aws_ecs_task_definition" "app_task" {
   family                   = "${var.project_name}-task"
   requires_compatibilities = ["FARGATE"]
@@ -323,17 +316,20 @@ resource "aws_ecs_task_definition" "app_task" {
       }
     }
   ])
+
+  tags = {
+    Name = "${var.project_name}-task-definition"
+  }
 }
 
-#==============================================
-# ECS SERVICE (RUN THE TASK + ATTACH TO ALB TG)
-#==============================================
-
+# ==============================================
+# ECS SERVICE
+# ==============================================
 resource "aws_ecs_service" "app_service" {
   name            = "${var.project_name}-service"
   cluster         = aws_ecs_cluster.fyp_cluster.id
   task_definition = aws_ecs_task_definition.app_task.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -351,4 +347,8 @@ resource "aws_ecs_service" "app_service" {
   depends_on = [
     aws_lb_listener.app_listener
   ]
+
+  tags = {
+    Name = "${var.project_name}-service"
+  }
 }
