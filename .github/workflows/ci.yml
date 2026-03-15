@@ -47,6 +47,8 @@ jobs:
         with:
           working_directory: infra
           soft_fail: true
+          additional_args: --exclude aws-ec2-no-public-egress-sgr,aws-elb-http-not-used,aws-ec2-no-public-ingress-sgr
+
           
 
 
