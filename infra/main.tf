@@ -228,6 +228,11 @@ resource "aws_ecr_repository" "app_repo" {
 resource "aws_ecs_cluster" "fyp_cluster" {
   name = "${var.project_name}-cluster"
 
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
   tags = {
     Name = "${var.project_name}-cluster"
   }
