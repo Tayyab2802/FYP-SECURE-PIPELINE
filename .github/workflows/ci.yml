@@ -47,15 +47,7 @@ jobs:
         with:
           working_directory: infra
           soft_fail: true
-          additional_args: >-
-            --exclude
-            aws-elb-http-not-used,
-            aws-elb-deletion-protection-enabled,
-            aws-elb-access-logs,
-            aws-ec2-no-public-egress-sgr,
-            aws-ec2-no-public-ingress-sgr,
-            aws-ec2-no-public-ip-subnet,
-            aws-ecr-enforce-immutable-repository
+          
 
 
   checkov-scan:
