@@ -108,3 +108,12 @@ output "ecs_service_id" {
 }
 
 
+output "frontend_bucket_name" {
+  description = "Frontend S3 bucket name"
+  value       = aws_s3_bucket.frontend_bucket.bucket
+}
+
+output "cloudfront_domain_name" {
+  description = "CloudFront domain name for the frontend"
+  value       = aws_cloudfront_distribution.frontend_cdn.domain_name
+}

@@ -25,15 +25,16 @@
       Describes what the buttons do
     -->
     <p>
-      The buttons below send HTTP GET requests to the backend API.
+      The buttons below send HTTP GET requests to the backend API
+      hosted on ECS behind the Application Load Balancer.
       Each response opens in a new browser tab.
     </p>
 
     <!--
       SECTION 5: Health check link
-      Calls /health via CloudFront (CloudFront routes this to the ALB)
+      Calls the backend /health endpoint via the ALB
     -->
-    <a href="/health" target="_blank">
+    <a href="http://fyp-secure-pipeline-alb-327820474.eu-west-2.elb.amazonaws.com/health" target="_blank">
       <button type="button">Check Backend Health</button>
     </a>
 
@@ -41,9 +42,9 @@
 
     <!--
       SECTION 6: API message link
-      Calls /api/message via CloudFront (CloudFront routes /api/* to the ALB)
+      Calls the backend /api/message endpoint via the ALB
     -->
-    <a href="/api/message" target="_blank">
+    <a href="http://fyp-secure-pipeline-alb-327820474.eu-west-2.elb.amazonaws.com/api/message" target="_blank">
       <button type="button">Call Backend API</button>
     </a>
 
