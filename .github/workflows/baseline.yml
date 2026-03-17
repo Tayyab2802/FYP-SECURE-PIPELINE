@@ -1,9 +1,14 @@
 name: Baseline CI (No Security Scans)
 
-run-name: ${{ github.event.head_commit.message }}
+run-name: ${{ github.event.inputs.test_name }}
 
 on:
   workflow_dispatch:
+    inputs:
+      test_name:
+        description: "Name of the test being executed"
+        required: true
+        default: "TEST - Baseline Run"
   push:
     branches: ["baseline"]
 
