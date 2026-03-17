@@ -108,18 +108,19 @@ resource "aws_security_group" "alb_sg" {
 
 # =========================
 # Security Group: ECS Tasks
+# INTENTIONALLY VULNERABLE
 # =========================
 resource "aws_security_group" "ecs_sg" {
   name        = "${var.project_name}-ecs-sg"
-  description = "Security group for ECS tasks (allow traffic only from ALB)"
+  description = "Security group for ECS tasks (intentionally vulnerable for testing)"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "Allow app traffic from ALB only"
-    from_port       = 8000
-    to_port         = 8000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
+    description = "VULNERABLE: Allow app traffic from anywhere"
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
