@@ -1,4 +1,4 @@
-name: CI (pipeline system validation)
+name: CI (Secure Pipeline)
 
 on:
   push:

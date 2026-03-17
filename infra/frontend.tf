@@ -20,10 +20,10 @@ resource "aws_s3_bucket_ownership_controls" "frontend_bucket_ownership" {
   }
 }
 
-# =========================
+# =======================
 # INTENTIONALLY VULNERABLE:
 # Disable public access protections
-# =========================
+# =======================
 resource "aws_s3_bucket_public_access_block" "frontend_bucket_pab" {
   bucket = aws_s3_bucket.frontend_bucket.id
 
