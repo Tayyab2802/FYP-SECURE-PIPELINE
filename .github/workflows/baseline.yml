@@ -1,5 +1,7 @@
 name: Baseline CI (No Security Scans)
 
+run-name: ${{ github.event.head_commit.message }}
+
 on:
   workflow_dispatch:
   push:
