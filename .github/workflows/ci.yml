@@ -1,4 +1,4 @@
-name: CI (inital succesfull run)
+name: CI (pipeline system validation)
 
 on:
   push:
