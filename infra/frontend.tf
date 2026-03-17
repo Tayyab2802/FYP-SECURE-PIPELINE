@@ -21,15 +21,16 @@ resource "aws_s3_bucket_ownership_controls" "frontend_bucket_ownership" {
 }
 
 # =========================
-# S3 Public Access Block
+# INTENTIONALLY VULNERABLE:
+# Disable public access protections
 # =========================
 resource "aws_s3_bucket_public_access_block" "frontend_bucket_pab" {
   bucket = aws_s3_bucket.frontend_bucket.id
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
 
 # =========================
@@ -58,61 +59,8 @@ resource "aws_s3_object" "frontend_index" {
 }
 
 # =========================
-# CloudFront Origin Access Control
-# =========================
-resource "aws_cloudfront_origin_access_control" "frontend_oac" {
-  name                              = "${var.project_name}-frontend-oac"
-  description                       = "OAC for secure frontend S3 access"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
-
-# =========================
-# CloudFront Distribution
-# =========================
-resource "aws_cloudfront_distribution" "frontend_cdn" {
-  enabled             = true
-  default_root_object = "index.html"
-
-  origin {
-    domain_name              = aws_s3_bucket.frontend_bucket.bucket_regional_domain_name
-    origin_id                = "s3-frontend-origin"
-    origin_access_control_id = aws_cloudfront_origin_access_control.frontend_oac.id
-  }
-
-  default_cache_behavior {
-    target_origin_id       = "s3-frontend-origin"
-    viewer_protocol_policy = "redirect-to-https"
-
-    allowed_methods = ["GET", "HEAD"]
-    cached_methods  = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-
-  tags = {
-    Name = "${var.project_name}-frontend-cdn"
-  }
-}
-
-# =========================
-# Bucket Policy to allow CloudFront only
+# INTENTIONALLY VULNERABLE:
+# Public read bucket policy
 # =========================
 resource "aws_s3_bucket_policy" "frontend_bucket_policy" {
   bucket = aws_s3_bucket.frontend_bucket.id
@@ -121,18 +69,11 @@ resource "aws_s3_bucket_policy" "frontend_bucket_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "AllowCloudFrontReadOnly"
+        Sid    = "PublicReadGetObject"
         Effect = "Allow"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
+        Principal = "*"
         Action   = "s3:GetObject"
         Resource = "${aws_s3_bucket.frontend_bucket.arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.frontend_cdn.arn
-          }
-        }
       }
     ]
   })
