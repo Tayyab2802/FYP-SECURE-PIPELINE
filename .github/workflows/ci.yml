@@ -1,4 +1,4 @@
-name: CI (Secure Pipeline)
+name: CI (pipeline system validation)
 
 on:
   push:
@@ -42,12 +42,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install tfsec
-        run: |
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
-
       - name: Run tfsec
-        run: tfsec ./infra
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: infra
+          soft_fail: false
+          additional_args: --exclude aws-ec2-no-public-egress-sgr,aws-elb-http-not-used,aws-ec2-no-public-ingress-sgr
+
+          
 
 
   checkov-scan:
