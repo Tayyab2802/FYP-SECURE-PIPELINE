@@ -357,3 +357,15 @@ resource "aws_ecs_service" "app_service" {
     Name = "${var.project_name}-service"
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
