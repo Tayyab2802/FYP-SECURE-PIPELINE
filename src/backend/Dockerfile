@@ -1,4 +1,8 @@
-FROM python:3.11-slim
+#############################
+# VULNERABLE BASE IMAGE
+############################
+
+FROM python:3.8-slim
 
 WORKDIR /app
 
