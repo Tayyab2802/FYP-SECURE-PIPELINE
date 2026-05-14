@@ -2,12 +2,11 @@ name: CI (pipeline system validation)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-
   terraform-validate:
     name: Terraform Format & Validate
     runs-on: ubuntu-latest
@@ -20,18 +19,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
       - name: Check Terraform formatting
         run: terraform fmt -check -recursive
 
-      - name: Initialise Terraform (no backend)
+      - name: Initialise Terraform
         run: terraform init
 
       - name: Validate Terraform configuration
         run: terraform validate
-
 
   tfsec-scan:
     name: tfsec IaC Scan
@@ -49,9 +54,6 @@ jobs:
           soft_fail: false
           additional_args: --exclude aws-ec2-no-public-egress-sgr,aws-elb-http-not-used,aws-ec2-no-public-ingress-sgr
 
-          
-
-
   checkov-scan:
     name: Checkov IaC Scan
     runs-on: ubuntu-latest
@@ -67,7 +69,6 @@ jobs:
           directory: infra
           soft_fail: false
           skip_check: CKV_AWS_2,CKV_AWS_18,CKV_AWS_21,CKV_AWS_51,CKV_AWS_68,CKV_AWS_86,CKV_AWS_91,CKV_AWS_103,CKV_AWS_130,CKV_AWS_144,CKV_AWS_145,CKV_AWS_150,CKV_AWS_158,CKV_AWS_174,CKV_AWS_260,CKV_AWS_310,CKV_AWS_333,CKV_AWS_336,CKV_AWS_338,CKV_AWS_374,CKV_AWS_378,CKV_AWS_382,CKV2_AWS_11,CKV2_AWS_12,CKV2_AWS_20,CKV2_AWS_28,CKV2_AWS_32,CKV2_AWS_42,CKV2_AWS_47,CKV2_AWS_61,CKV2_AWS_62,CKV2_AWS_65
-
 
   docker-build-and-trivy:
     name: Docker Build & Trivy Scan
