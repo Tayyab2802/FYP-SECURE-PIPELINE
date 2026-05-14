@@ -27,7 +27,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Initialise Terraform (no backend)
-        run: terraform init -backend=false
+        run: terraform init
 
       - name: Validate Terraform configuration
         run: terraform validate
