@@ -82,7 +82,7 @@ jobs:
         run: docker build -t fyp-app:ci -f src/backend/Dockerfile src/backend
 
       - name: Run Trivy
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: "fyp-app:ci"
           format: "table"
